@@ -1,6 +1,4 @@
-/* BF Elite System - Full Logic
-   Features: Role Management, Real Data Fetching
-*/
+console.log("App.js Loaded Successfully"); // للتأكد من التحميل
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
@@ -14,12 +12,10 @@ import {
     doc, 
     getDoc,
     collection,
-    query,
-    where,
     getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// ⚠️ تأكد أن البيانات دي بتاعتك من فايربيس
+// إعدادات مشروعك (كما أرسلتها سابقاً)
 const firebaseConfig = {
     apiKey: "AIzaSyDwGoNaK-XPUB8WIBCelpZYGGsUAH8WeYI", 
     authDomain: "bf-elite-system.firebaseapp.com",
@@ -33,36 +29,27 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// متغير عالمي لتخزين بيانات المستخدم الحالي
+// تهيئة الأنيميشن بشكل آمن
+if(typeof AOS !== 'undefined') {
+    AOS.init();
+}
+
 let currentUserProfile = null;
 
-// ==========================================
-// 1. المراقب الذكي (العقل المدبر)
-// ==========================================
+// مراقبة الدخول
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // 1. المستخدم عمل تسجيل دخول
         document.getElementById('loginScreen').classList.add('d-none');
         document.getElementById('appContainer').classList.remove('d-none');
-        
-        // 2. نجيب بياناته الخاصة من الداتا بيز
         await fetchUserProfile(user.uid);
-        
-        // 3. تشغيل العدادات والأنيميشن
-        if(typeof AOS !== 'undefined') AOS.init();
         startClock();
-
     } else {
-        // المستخدم خرج
         document.getElementById('loginScreen').classList.remove('d-none');
         document.getElementById('appContainer').classList.add('d-none');
-        currentUserProfile = null;
     }
 });
 
-// ==========================================
-// 2. دالة جلب بيانات الموظف (أهم دالة)
-// ==========================================
+// جلب بيانات الموظف
 async function fetchUserProfile(uid) {
     try {
         const docRef = doc(db, "users", uid);
@@ -70,65 +57,50 @@ async function fetchUserProfile(uid) {
 
         if (docSnap.exists()) {
             currentUserProfile = docSnap.data();
-            console.log("Profile Data:", currentUserProfile);
-
-            // تحديث الواجهة بالبيانات الحقيقية
-            document.getElementById('userNameDisplay').innerText = currentUserProfile.full_name;
-            document.getElementById('profileName').innerText = currentUserProfile.full_name;
-            document.getElementById('profileRole').innerText = currentUserProfile.job_title; // عنصر جديد
             
-            // عرض المرتب (لو موجود)
-            if(currentUserProfile.salary) {
-                // نبحث عن العنصر اللي بيعرض المرتب ونحدثه
-                const salaryEl = document.querySelector('.fa-wallet').nextElementSibling;
-                if(salaryEl) salaryEl.innerText = currentUserProfile.salary.toLocaleString() + " EGP";
+            // تحديث البيانات
+            document.getElementById('userNameDisplay').innerText = currentUserProfile.full_name || "مستخدم";
+            document.getElementById('profileName').innerText = currentUserProfile.full_name || "مستخدم";
+            document.getElementById('profileRole').innerText = currentUserProfile.job_title || "موظف";
+            document.getElementById('profileEmail').innerText = auth.currentUser.email;
+
+            // تحديث الراتب
+            const salaryEl = document.querySelector('.fa-wallet');
+            if(salaryEl && currentUserProfile.salary) {
+                salaryEl.nextElementSibling.innerText = currentUserProfile.salary.toLocaleString() + " EGP";
             }
 
-            // فحص الصلاحيات (Admin vs Employee)
+            // فحص لوحة المدير
             checkPermissions(currentUserProfile.role);
-
-        } else {
-            console.log("المستخدم مسجل دخول لكن ليس له ملف بيانات!");
-            document.getElementById('userNameDisplay').innerText = "مستخدم غير معرف";
-            Swal.fire({icon: 'error', title: 'خطأ في الحساب', text: 'يرجى مراجعة الـ HR لإنشاء ملف وظيفي لك'});
         }
     } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error:", error);
     }
 }
 
-// ==========================================
-// 3. نظام الصلاحيات (Admin Control)
-// ==========================================
+// فحص الصلاحيات
 function checkPermissions(role) {
-    const teamSection = document.getElementById('teamSection');
     const teamTab = document.querySelector('a[onclick*="teamSection"]');
-
     if (role === 'admin') {
-        // لو مدير: اظهر زرار الفريق ولوحة التحكم
         if(teamTab) teamTab.style.display = 'block';
-        
-        // هنا ممكن نجيب بيانات كل الموظفين عشان المدير يشوفهم
         loadAllEmployees();
     } else {
-        // لو موظف عادي: اخفي زرار الفريق
         if(teamTab) teamTab.style.display = 'none';
     }
 }
 
-// دالة للمدير فقط: عرض كل الموظفين
+// تحميل الموظفين (للمدير)
 async function loadAllEmployees() {
-    const teamList = document.getElementById('teamSection');
-    teamList.innerHTML = '<h5 class="text-white mb-3">فريق العمل</h5>';
+    const container = document.getElementById('teamListContainer');
+    container.innerHTML = '<h5 class="text-white mb-3">فريق العمل</h5>';
     
-    const q = collection(db, "users");
-    const querySnapshot = await getDocs(q);
-    
-    querySnapshot.forEach((doc) => {
-        const emp = doc.data();
-        // ميعرضش المدير نفسه في القائمة
-        if(emp.full_name !== currentUserProfile.full_name) {
-            teamList.innerHTML += `
+    try {
+        const q = collection(db, "users");
+        const querySnapshot = await getDocs(q);
+        
+        querySnapshot.forEach((doc) => {
+            const emp = doc.data();
+            container.innerHTML += `
                 <div class="glass-card p-3 mb-2 d-flex justify-content-between align-items-center">
                     <div>
                         <h6 class="text-white m-0">${emp.full_name}</h6>
@@ -137,25 +109,23 @@ async function loadAllEmployees() {
                     <span class="badge bg-primary">${emp.role}</span>
                 </div>
             `;
-        }
-    });
+        });
+    } catch(e) {
+        console.log("Error loading team", e);
+    }
 }
 
-// ==========================================
-// 4. الوظائف الأساسية (Login/Logout)
-// ==========================================
+// دوال النظام
 window.loginSystem = async () => {
     const email = document.getElementById('emailInput').value;
     const pass = document.getElementById('passInput').value;
-    
-    if(!email || !pass) return Swal.fire('تنبيه', 'اكتب البيانات كاملة', 'warning');
+    if(!email || !pass) return Swal.fire('تنبيه', 'أدخل البيانات كاملة', 'warning');
 
     try {
         Swal.showLoading();
         await signInWithEmailAndPassword(auth, email, pass);
-        // الـ onAuthStateChanged هتشتغل لوحدها وتكمل الباقي
     } catch (error) {
-        Swal.fire('خطأ', 'البيانات غير صحيحة', 'error');
+        Swal.fire('خطأ', 'فشل تسجيل الدخول: ' + error.code, 'error');
     }
 };
 
@@ -163,14 +133,11 @@ window.logout = () => {
     signOut(auth).then(() => location.reload());
 };
 
-// ==========================================
-// 5. أدوات مساعدة
-// ==========================================
 function startClock() {
     setInterval(() => {
         const now = new Date();
-        const clock = document.getElementById('clock');
-        if(clock) clock.innerText = now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+        const c = document.getElementById('clock');
+        if(c) c.innerText = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'});
         document.getElementById('date').innerText = now.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'short'});
     }, 1000);
 }
