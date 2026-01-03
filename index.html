@@ -1,173 +1,170 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" class="dark">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Restaurant Ops</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <title>BF Elite | Integrated HRMS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: { sans: ['Tajawal', 'sans-serif'] },
-                    colors: { primary: '#6366f1', secondary: '#ec4899', dark: '#0f172a' }
+                    colors: { royal: '#1e40af', brand: '#2563eb' }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #0f172a; color: white; -webkit-tap-highlight-color: transparent; }
-        /* Glassmorphism Effect */
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
-        .hide-scroll::-webkit-scrollbar { display: none; }
+        body { background-color: #f8fafc; font-family: 'Tajawal', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeInUp 0.4s ease-out; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-btn.active { color: #2563eb; background: rgba(37, 99, 235, 0.05); }
+        .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
+        input::placeholder { text-align: center; }
     </style>
 </head>
-<body class="antialiased pb-24 select-none">
+<body class="antialiased text-slate-800 pb-28">
 
-    <div id="loader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-dark transition-opacity duration-500">
-        <div class="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p class="mt-4 text-slate-400 font-bold animate-pulse">جاري تجهيز السيستم...</p>
+    <div id="loader" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
+        <div class="w-10 h-10 border-4 border-slate-200 border-t-brand rounded-full animate-spin"></div>
     </div>
 
-    <section id="loginScreen" class="min-h-screen flex flex-col items-center justify-center p-6 relative z-40 hidden">
-        <div class="absolute inset-0 overflow-hidden -z-10">
-            <div class="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 w-64 h-64 bg-secondary/20 rounded-full blur-3xl"></div>
-        </div>
-        
-        <div class="glass w-full max-w-sm p-8 rounded-3xl text-center border-t border-white/10 shadow-2xl">
-            <div class="w-20 h-20 bg-gradient-to-tr from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg shadow-primary/30">
-                <i class="fas fa-utensils fa-2x text-white"></i>
+    <section id="authSection" class="min-h-screen flex items-center justify-center p-6 bg-slate-50">
+        <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl border border-slate-200">
+            <div id="loginForm" class="space-y-6">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-brand text-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-brand/20 text-3xl font-black">BF</div>
+                    <h1 class="text-3xl font-black text-slate-900 leading-none">تسجيل الدخول</h1>
+                    <p class="text-slate-400 mt-3 text-sm font-medium italic">BF Elite HR Solutions</p>
+                </div>
+                <input type="email" id="email" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl outline-none focus:border-brand transition-all text-center" placeholder="البريد الإلكتروني">
+                <input type="password" id="pass" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl outline-none focus:border-brand transition-all text-center" placeholder="كلمة المرور">
+                <button onclick="login()" class="w-full bg-brand hover:bg-royal text-white py-4 rounded-2xl font-bold shadow-lg transition-all active:scale-95">دخول النظام</button>
+                <button onclick="toggleAuth(true)" class="w-full text-brand font-bold text-sm mt-4 text-center">إنشاء حساب جديد</button>
             </div>
-            <h1 class="text-3xl font-extrabold mb-1 bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Resto Ops</h1>
-            <p class="text-slate-500 text-sm mb-8">إدارة العمليات والرواتب</p>
-            
-            <div class="space-y-4">
-                <input type="email" id="emailInput" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-center text-white focus:border-primary focus:outline-none transition-colors" placeholder="البريد الإلكتروني">
-                <input type="password" id="passInput" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-center text-white focus:border-primary focus:outline-none transition-colors" placeholder="كلمة المرور">
-                <button onclick="loginSystem()" class="w-full bg-gradient-to-r from-primary to-secondary py-3.5 rounded-xl font-bold shadow-lg shadow-primary/25 active:scale-95 transition-transform">تسجيل الدخول</button>
+
+            <div id="signupForm" class="hidden space-y-4">
+                <h2 class="text-2xl font-bold text-slate-900 text-center mb-6">انضم لفريق العمل</h2>
+                <input type="text" id="regName" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center" placeholder="الاسم الرباعي">
+                <input type="text" id="regJob" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center" placeholder="الوظيفة">
+                <input type="email" id="regEmail" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center" placeholder="البريد الإلكتروني">
+                <input type="password" id="regPass" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center" placeholder="كلمة المرور">
+                <button onclick="signup()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold">تأكيد وانضمام</button>
+                <button onclick="toggleAuth(false)" class="w-full text-slate-400 text-xs mt-4">العودة للدخول</button>
             </div>
         </div>
     </section>
 
-    <div id="appContainer" class="hidden animate-fade-in">
-        
-        <header class="fixed top-0 w-full z-30 glass px-6 py-4 flex justify-between items-center shadow-md">
+    <div id="appMain" class="hidden">
+        <header class="fixed top-0 w-full z-40 glass-header px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold border border-primary/30">
-                    <i class="fas fa-user"></i>
-                </div>
+                <div id="avatar" class="w-12 h-12 bg-brand text-white rounded-2xl flex items-center justify-center font-black text-xl shadow-lg shadow-brand/30">?</div>
                 <div>
-                    <h5 class="text-[10px] text-slate-400">أهلاً يا كابتن</h5>
-                    <h3 class="font-bold text-white text-sm" id="headerName">...</h3>
+                    <h3 class="font-bold text-slate-900" id="headerName">...</h3>
+                    <p class="text-[10px] font-bold text-brand uppercase tracking-widest" id="headerRole">Employee</p>
                 </div>
             </div>
-            <button onclick="logout()" class="w-9 h-9 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors">
-                <i class="fas fa-power-off text-xs"></i>
+            <button onclick="logout()" class="w-11 h-11 rounded-2xl bg-red-50 text-red-500 hover:bg-red-600 hover:text-white transition-all">
+                <i class="fas fa-power-off"></i>
             </button>
         </header>
 
-        <main class="container mx-auto px-4 mt-24 space-y-6">
-
-            <section id="homeSection" class="space-y-5">
-                
-                <div class="glass rounded-3xl p-6 text-center relative overflow-hidden">
-                    <div class="flex justify-between items-start mb-4">
-                        <div class="text-right">
-                            <h2 class="text-3xl font-bold text-white" id="clock">00:00</h2>
-                            <p class="text-slate-400 text-xs" id="date">--/--/----</p>
-                        </div>
-                        <div id="shiftBadge" class="px-3 py-1 rounded-full bg-slate-800 border border-slate-600 text-[10px] text-slate-300">
-                            جاري تحديد الشيفت...
-                        </div>
+        <main class="max-w-4xl mx-auto px-6 pt-24 space-y-8">
+            
+            <div id="homeTab" class="tab-content active space-y-6">
+                <div class="bg-gradient-to-br from-royal to-brand p-10 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group">
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
+                    <p class="opacity-70 text-sm font-medium">صافي الراتب المستحق</p>
+                    <h1 class="text-6xl font-black mt-2 mb-4 tracking-tighter"><span id="userSalary">0</span> <small class="text-lg font-normal opacity-50">EGP</small></h1>
+                    <div class="flex gap-4">
+                        <span class="bg-white/10 px-3 py-1 rounded-full text-[10px] font-bold">الحالة: نشط</span>
+                        <span class="bg-white/10 px-3 py-1 rounded-full text-[10px] font-bold">تحديث: لايف</span>
                     </div>
+                </div>
 
-                    <button onclick="handleAttendance()" id="attendanceBtn" class="group relative inline-block">
-                        <div class="absolute inset-0 bg-primary rounded-full blur-xl opacity-20 group-hover:opacity-40 transition-opacity animate-pulse"></div>
-                        <div class="relative w-28 h-28 bg-slate-800 rounded-full border-2 border-primary/30 flex items-center justify-center shadow-2xl active:scale-90 transition-transform cursor-pointer">
-                            <i class="fas fa-fingerprint fa-4x text-white group-hover:text-primary transition-colors"></i>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="sendRequest('سلفة')" class="bg-white p-6 rounded-[2rem] text-center border border-slate-100 shadow-sm hover:border-brand transition-all group">
+                        <div class="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-money-bill-transfer fa-lg"></i>
                         </div>
+                        <span class="font-bold text-slate-700">طلب سلفة</span>
                     </button>
-                    
-                    <p class="mt-4 text-xs font-medium text-slate-500" id="statusText">يجب التواجد داخل الفرع</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="glass p-4 rounded-2xl border-l-4 border-green-500 relative overflow-hidden">
-                        <i class="fas fa-wallet absolute -left-2 -bottom-2 text-6xl text-green-500/5"></i>
-                        <p class="text-slate-400 text-[10px] mb-1">الراتب الحالي (Live)</p>
-                        <h4 class="text-xl font-bold text-green-400"><span id="liveSalary">0</span> <span class="text-xs">EGP</span></h4>
-                    </div>
-                    <div class="glass p-4 rounded-2xl border-l-4 border-blue-500 relative overflow-hidden">
-                        <i class="fas fa-hourglass-half absolute -left-2 -bottom-2 text-6xl text-blue-500/5"></i>
-                        <p class="text-slate-400 text-[10px] mb-1">ساعات العمل (من 208)</p>
-                        <h4 class="text-xl font-bold text-blue-400"><span id="totalHours">0</span> <span class="text-xs">ساعة</span></h4>
-                    </div>
-                </div>
-
-                <div class="glass p-4 rounded-2xl">
-                    <h3 class="font-bold text-sm mb-3 border-r-4 border-secondary pr-2">نظام الشيفتات</h3>
-                    <div class="flex gap-2 text-center">
-                        <div class="flex-1 bg-slate-800/50 rounded-lg p-2 border border-white/5">
-                            <span class="text-[10px] text-slate-400 block">صباحي ☀️</span>
-                            <span class="font-bold text-primary">10AM - 7PM</span>
+                    <button onclick="sendRequest('إجازة')" class="bg-white p-6 rounded-[2rem] text-center border border-slate-100 shadow-sm hover:border-brand transition-all group">
+                        <div class="w-14 h-14 bg-blue-50 text-brand rounded-2xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                            <i class="fas fa-calendar-check fa-lg"></i>
                         </div>
-                        <div class="flex-1 bg-slate-800/50 rounded-lg p-2 border border-white/5">
-                            <span class="text-[10px] text-slate-400 block">مسائي 🌙</span>
-                            <span class="font-bold text-secondary">7PM - 4AM</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="requestsSection" class="hidden space-y-6">
-                <h2 class="text-2xl font-bold px-2">مركز الطلبات</h2>
-                <div class="grid grid-cols-2 gap-3">
-                    <button onclick="requestAction('سلفة')" class="glass p-5 rounded-2xl text-center hover:bg-white/5 active:scale-95 transition-all">
-                        <div class="w-12 h-12 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center mx-auto mb-2">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <span class="font-bold text-sm">طلب سلفة</span>
-                    </button>
-                    <button onclick="requestAction('إجازة')" class="glass p-5 rounded-2xl text-center hover:bg-white/5 active:scale-95 transition-all">
-                        <div class="w-12 h-12 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center mx-auto mb-2">
-                            <i class="fas fa-umbrella-beach"></i>
-                        </div>
-                        <span class="font-bold text-sm">طلب إجازة</span>
+                        <span class="font-bold text-slate-700">طلب إجازة</span>
                     </button>
                 </div>
-                
-                <h3 class="text-sm text-slate-400 px-2 mt-4">سجل طلباتي</h3>
-                <div id="myRequestsList" class="space-y-3 pb-20"></div>
-            </section>
 
-            <section id="adminSection" class="hidden space-y-6">
-                <div class="bg-gradient-to-r from-primary to-indigo-900 p-6 rounded-3xl shadow-lg relative overflow-hidden">
-                    <h2 class="text-xl font-bold text-white relative z-10">لوحة المدير</h2>
-                    <p class="text-indigo-200 text-xs relative z-10">مراجعة الطلبات والرواتب</p>
+                <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100">
+                    <h3 class="font-black text-slate-800 mb-5 flex items-center gap-2">
+                        <i class="fas fa-history text-brand"></i> سجل طلباتي الأخير
+                    </h3>
+                    <div id="myRequests" class="space-y-4">
+                        </div>
                 </div>
-                <div id="adminRequestsList" class="space-y-3 pb-20"></div>
-            </section>
+            </div>
+
+            <div id="adminTab" class="tab-content space-y-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-3xl font-black text-slate-900">إدارة الفريق</h2>
+                    <span id="pendingBadge" class="bg-red-500 text-white text-[10px] px-3 py-1 rounded-full font-bold animate-pulse hidden italic">إجراءات معلقة</span>
+                </div>
+                <div id="employeesList" class="grid gap-4">
+                    </div>
+            </div>
+
+            <div id="profileTab" class="tab-content space-y-6">
+                <div class="bg-white p-10 rounded-[3rem] text-center shadow-xl border border-slate-100">
+                    <div id="profAvatar" class="w-24 h-24 bg-brand text-white rounded-[2rem] flex items-center justify-center mx-auto mb-4 text-3xl font-black shadow-lg shadow-brand/20">?</div>
+                    <h2 class="text-2xl font-black text-slate-900" id="profName">...</h2>
+                    <p class="text-brand font-bold" id="profJob">...</p>
+                    <div class="mt-8 pt-8 border-t border-slate-50 grid grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">البريد الإلكتروني</p>
+                            <p class="font-bold text-xs" id="profEmail">...</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-[10px] text-slate-400 font-bold uppercase mb-1">الراتب الأساسي</p>
+                            <p class="font-bold text-sm text-brand" id="profSalary">0 EGP</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-[3rem] border border-slate-100 space-y-4">
+                    <h3 class="font-black text-slate-800"><i class="fas fa-shield-alt ml-2 text-brand"></i>أمان الحساب</h3>
+                    <input type="password" id="oldPass" class="w-full bg-slate-50 border border-slate-100 p-4 rounded-2xl outline-none" placeholder="كلمة المرور القديمة">
+                    <input type="password" id="newPass" class="w-full bg-slate-50 border border-slate-100 p-4 rounded-2xl outline-none" placeholder="كلمة المرور الجديدة">
+                    <button onclick="changePass()" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">تحديث كلمة المرور</button>
+                </div>
+            </div>
 
         </main>
 
-        <nav class="fixed bottom-4 left-4 right-4 h-16 glass rounded-2xl flex justify-around items-center z-50 shadow-2xl border border-white/10">
-            <a href="#" onclick="switchTab('homeSection', this)" class="nav-item active text-primary flex flex-col items-center">
-                <i class="fas fa-home text-xl mb-1"></i>
-                <span class="text-[9px] font-bold">الرئيسية</span>
-            </a>
-            <a href="#" onclick="switchTab('requestsSection', this)" class="nav-item text-slate-500 flex flex-col items-center">
-                <i class="fas fa-file-signature text-xl mb-1"></i>
-                <span class="text-[9px] font-bold">طلباتي</span>
-            </a>
-            <a href="#" onclick="switchTab('adminSection', this)" id="adminLink" class="nav-item hidden text-slate-500 flex flex-col items-center">
-                <i class="fas fa-user-shield text-xl mb-1"></i>
-                <span class="text-[9px] font-bold">الإدارة</span>
-            </a>
+        <div id="empModal" class="fixed inset-0 z-[60] hidden bg-slate-900/50 backdrop-blur-sm flex items-end md:items-center justify-center p-4">
+            <div class="bg-white w-full max-w-lg rounded-t-[3rem] md:rounded-[3rem] shadow-2xl overflow-hidden">
+                <div class="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 text-right">
+                    <div>
+                        <h3 id="modalName" class="text-xl font-black text-slate-900">...</h3>
+                        <p id="modalJob" class="text-[10px] text-brand font-bold uppercase tracking-widest">...</p>
+                    </div>
+                    <button onclick="closeModal()" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-slate-400 hover:text-red-500 shadow-md transition-all">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="modalContent" class="p-8 max-h-[60vh] overflow-y-auto space-y-4">
+                    </div>
+            </div>
+        </div>
+
+        <nav class="fixed bottom-6 left-6 right-6 h-20 bg-white shadow-2xl rounded-[2.5rem] flex justify-around items-center z-50 border border-slate-100 px-4">
+            <button onclick="switchTab('homeTab', this)" class="nav-btn w-14 h-14 rounded-2xl flex items-center justify-center active transition-all"><i class="fas fa-th-large text-xl"></i></button>
+            <button id="adminBtn" onclick="switchTab('adminTab', this)" class="nav-btn w-14 h-14 rounded-2xl flex items-center justify-center text-slate-400 hidden transition-all"><i class="fas fa-user-gear text-xl"></i></button>
+            <button onclick="switchTab('profileTab', this)" class="nav-btn w-14 h-14 rounded-2xl flex items-center justify-center text-slate-400 transition-all"><i class="fas fa-id-card-clip text-xl"></i></button>
         </nav>
     </div>
 
