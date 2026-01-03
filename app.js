@@ -6,12 +6,17 @@ import { getFirestore, doc, getDoc, collection, addDoc, query, where, onSnapshot
 
 // --- إعدادات فايربيس (ضع بياناتك هنا) ---
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "...",
-    appId: "..."
+   apiKey: "AIzaSyDwGoNaK-XPUB8WIBCelpZYGGsUAH8WeYI",
+
+  authDomain: "bf-elite-system.firebaseapp.com",
+
+  projectId: "bf-elite-system",
+
+  storageBucket: "bf-elite-system.firebasestorage.app",
+
+  messagingSenderId: "288809372816",
+
+  appId: "1:288809372816:web:79b575d594d4707c985c15"
 };
 
 const app = initializeApp(firebaseConfig);
