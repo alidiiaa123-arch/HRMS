@@ -1,8 +1,7 @@
-/* BF Elite System - Connected to Real Firebase
-   Configured for: bf-elite-system
+/* BF Elite System - Full Logic
+   Features: Role Management, Real Data Fetching
 */
 
-// استدعاء المكتبات من سيرفرات جوجل مباشرة
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
     getAuth, 
@@ -13,12 +12,16 @@ import {
 import { 
     getFirestore, 
     doc, 
-    getDoc 
+    getDoc,
+    collection,
+    query,
+    where,
+    getDocs
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// إعدادات الاتصال الخاصة بمشروعك (تتصل بقاعدة بياناتك)
+// ⚠️ تأكد أن البيانات دي بتاعتك من فايربيس
 const firebaseConfig = {
-    apiKey: "AIzaSyDwGoNaK-XPUB8WIBCelpZYGGsUAH8WeYI",
+    apiKey: "AIzaSyDwGoNaK-XPUB8WIBCelpZYGGsUAH8WeYI", 
     authDomain: "bf-elite-system.firebaseapp.com",
     projectId: "bf-elite-system",
     storageBucket: "bf-elite-system.firebasestorage.app",
@@ -26,135 +29,155 @@ const firebaseConfig = {
     appId: "1:288809372816:web:79b575d594d4707c985c15"
 };
 
-// بدء تشغيل التطبيق
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ===============================================
-// 1. نظام الحماية وإدارة الجلسات
-// ===============================================
+// متغير عالمي لتخزين بيانات المستخدم الحالي
+let currentUserProfile = null;
 
-// هذا الكود يعمل تلقائياً عند تحميل الصفحة لفحص حالة المستخدم
+// ==========================================
+// 1. المراقب الذكي (العقل المدبر)
+// ==========================================
 onAuthStateChanged(auth, async (user) => {
     if (user) {
-        console.log("المستخدم مسجل دخول:", user.email);
-        
-        // إظهار النظام وإخفاء شاشة الدخول
+        // 1. المستخدم عمل تسجيل دخول
         document.getElementById('loginScreen').classList.add('d-none');
         document.getElementById('appContainer').classList.remove('d-none');
         
-        // عرض البيانات الأساسية
-        updateUI(user);
+        // 2. نجيب بياناته الخاصة من الداتا بيز
+        await fetchUserProfile(user.uid);
         
-        // تشغيل الأنيميشن والساعة
+        // 3. تشغيل العدادات والأنيميشن
         if(typeof AOS !== 'undefined') AOS.init();
         startClock();
 
     } else {
-        console.log("لا يوجد مستخدم مسجل");
-        // إظهار شاشة الدخول فقط
+        // المستخدم خرج
         document.getElementById('loginScreen').classList.remove('d-none');
         document.getElementById('appContainer').classList.add('d-none');
-        
-        // تشغيل الأنيميشن لشاشة الدخول
-        if(typeof AOS !== 'undefined') AOS.init();
+        currentUserProfile = null;
     }
 });
 
-// ===============================================
-// 2. وظائف النظام (مربوطة بالـ HTML)
-// ===============================================
+// ==========================================
+// 2. دالة جلب بيانات الموظف (أهم دالة)
+// ==========================================
+async function fetchUserProfile(uid) {
+    try {
+        const docRef = doc(db, "users", uid);
+        const docSnap = await getDoc(docRef);
 
-// دالة تسجيل الدخول
+        if (docSnap.exists()) {
+            currentUserProfile = docSnap.data();
+            console.log("Profile Data:", currentUserProfile);
+
+            // تحديث الواجهة بالبيانات الحقيقية
+            document.getElementById('userNameDisplay').innerText = currentUserProfile.full_name;
+            document.getElementById('profileName').innerText = currentUserProfile.full_name;
+            document.getElementById('profileRole').innerText = currentUserProfile.job_title; // عنصر جديد
+            
+            // عرض المرتب (لو موجود)
+            if(currentUserProfile.salary) {
+                // نبحث عن العنصر اللي بيعرض المرتب ونحدثه
+                const salaryEl = document.querySelector('.fa-wallet').nextElementSibling;
+                if(salaryEl) salaryEl.innerText = currentUserProfile.salary.toLocaleString() + " EGP";
+            }
+
+            // فحص الصلاحيات (Admin vs Employee)
+            checkPermissions(currentUserProfile.role);
+
+        } else {
+            console.log("المستخدم مسجل دخول لكن ليس له ملف بيانات!");
+            document.getElementById('userNameDisplay').innerText = "مستخدم غير معرف";
+            Swal.fire({icon: 'error', title: 'خطأ في الحساب', text: 'يرجى مراجعة الـ HR لإنشاء ملف وظيفي لك'});
+        }
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
+
+// ==========================================
+// 3. نظام الصلاحيات (Admin Control)
+// ==========================================
+function checkPermissions(role) {
+    const teamSection = document.getElementById('teamSection');
+    const teamTab = document.querySelector('a[onclick*="teamSection"]');
+
+    if (role === 'admin') {
+        // لو مدير: اظهر زرار الفريق ولوحة التحكم
+        if(teamTab) teamTab.style.display = 'block';
+        
+        // هنا ممكن نجيب بيانات كل الموظفين عشان المدير يشوفهم
+        loadAllEmployees();
+    } else {
+        // لو موظف عادي: اخفي زرار الفريق
+        if(teamTab) teamTab.style.display = 'none';
+    }
+}
+
+// دالة للمدير فقط: عرض كل الموظفين
+async function loadAllEmployees() {
+    const teamList = document.getElementById('teamSection');
+    teamList.innerHTML = '<h5 class="text-white mb-3">فريق العمل</h5>';
+    
+    const q = collection(db, "users");
+    const querySnapshot = await getDocs(q);
+    
+    querySnapshot.forEach((doc) => {
+        const emp = doc.data();
+        // ميعرضش المدير نفسه في القائمة
+        if(emp.full_name !== currentUserProfile.full_name) {
+            teamList.innerHTML += `
+                <div class="glass-card p-3 mb-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white m-0">${emp.full_name}</h6>
+                        <small class="text-white-50">${emp.job_title}</small>
+                    </div>
+                    <span class="badge bg-primary">${emp.role}</span>
+                </div>
+            `;
+        }
+    });
+}
+
+// ==========================================
+// 4. الوظائف الأساسية (Login/Logout)
+// ==========================================
 window.loginSystem = async () => {
     const email = document.getElementById('emailInput').value;
     const pass = document.getElementById('passInput').value;
-
-    if(!email || !pass) {
-        return Swal.fire({
-            icon: 'warning', 
-            title: 'تنبيه', 
-            text: 'يرجى إدخال البريد الإلكتروني وكلمة المرور',
-            background: '#1a1a40', color: '#fff'
-        });
-    }
+    
+    if(!email || !pass) return Swal.fire('تنبيه', 'اكتب البيانات كاملة', 'warning');
 
     try {
-        Swal.fire({
-            title: 'جاري الاتصال بالسيرفر...',
-            allowOutsideClick: false,
-            didOpen: () => Swal.showLoading(),
-            background: '#1a1a40', color: '#fff'
-        });
-
-        // أمر الاتصال بفايربيس
+        Swal.showLoading();
         await signInWithEmailAndPassword(auth, email, pass);
-        
-        Swal.close();
-        const Toast = Swal.mixin({toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, background: '#1a1a40', color: '#fff'});
-        Toast.fire({icon: 'success', title: 'تم تسجيل الدخول بنجاح'});
-
+        // الـ onAuthStateChanged هتشتغل لوحدها وتكمل الباقي
     } catch (error) {
-        Swal.close();
-        let msg = "خطأ في الاتصال";
-        if(error.code === 'auth/invalid-credential') msg = "بيانات الدخول غير صحيحة";
-        if(error.code === 'auth/too-many-requests') msg = "محاولات كثيرة خاطئة، انتظر قليلاً";
-        
-        Swal.fire({icon: 'error', title: 'فشل الدخول', text: msg, background: '#1a1a40', color: '#fff'});
+        Swal.fire('خطأ', 'البيانات غير صحيحة', 'error');
     }
 };
 
-// دالة تسجيل الخروج
 window.logout = () => {
-    Swal.fire({
-        title: 'تسجيل الخروج؟',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'نعم، خروج',
-        cancelButtonText: 'إلغاء',
-        background: '#1a1a40', color: '#fff'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            signOut(auth).then(() => {
-                location.reload(); // إعادة تحميل الصفحة لتنظيف الذاكرة
-            });
-        }
-    });
+    signOut(auth).then(() => location.reload());
 };
 
-// دالة تحديث الواجهة بالبيانات
-function updateUI(user) {
-    // نأخذ الاسم من الإيميل مؤقتاً حتى نربط قاعدة البيانات بالكامل
-    const shortName = user.email.split('@')[0];
-    document.getElementById('userNameDisplay').innerText = shortName;
-    document.getElementById('profileName').innerText = shortName;
-    document.getElementById('profileEmail').innerText = user.email;
-}
-
-// ===============================================
-// 3. أدوات مساعدة (ساعة، تنقل)
-// ===============================================
-
+// ==========================================
+// 5. أدوات مساعدة
+// ==========================================
 function startClock() {
     setInterval(() => {
         const now = new Date();
-        const clockEl = document.getElementById('clock');
-        if(clockEl) {
-            clockEl.innerText = now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
-            document.getElementById('date').innerText = now.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'short'});
-        }
+        const clock = document.getElementById('clock');
+        if(clock) clock.innerText = now.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+        document.getElementById('date').innerText = now.toLocaleDateString('ar-EG', {weekday:'long', day:'numeric', month:'short'});
     }, 1000);
 }
 
 window.switchTab = (sectionId, btn) => {
     document.querySelectorAll('main section').forEach(el => el.classList.add('d-none'));
     document.getElementById(sectionId).classList.remove('d-none');
-    
     document.querySelectorAll('.glass-nav a').forEach(a => a.classList.remove('active'));
     btn.classList.add('active');
-    
-    // تغيير العنوان
-    const titles = {'homeSection': 'الرئيسية', 'servicesSection': 'الخدمات', 'teamSection': 'الفريق', 'profileSection': 'الملف الشخصي'};
-    document.getElementById('pageTitle').innerText = titles[sectionId] || 'النظام';
 };
