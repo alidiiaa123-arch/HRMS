@@ -6,7 +6,6 @@ body { background-color: #f8fafc; font-family: 'Tajawal', sans-serif; }
 .glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
 input::placeholder, select { text-align: center; }
 
-/* Custom Scrollbar for Modal & Sidebar */
 #modalContent::-webkit-scrollbar, #salarySidebar .overflow-y-auto::-webkit-scrollbar { width: 6px; }
 #modalContent::-webkit-scrollbar-track, #salarySidebar .overflow-y-auto::-webkit-scrollbar-track { background: #f1f1f1; }
 #modalContent::-webkit-scrollbar-thumb, #salarySidebar .overflow-y-auto::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }

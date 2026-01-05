@@ -6,6 +6,7 @@
     <title>BF Elite | Integrated HRMS</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -29,18 +30,18 @@
         <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl border border-slate-200">
             <div id="loginForm" class="space-y-6">
                 <div class="text-center mb-8">
-                    <div class="w-20 h-20 bg-brand text-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-brand/20 text-3xl font-black">BF</div>
-                    <h1 class="text-3xl font-black text-slate-900 leading-none">تسجيل الدخول</h1>
-                    <p class="text-slate-400 mt-3 text-sm font-medium italic">BF Elite HR Solutions</p>
+                    <div class="w-20 h-20 bg-brand text-white rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-brand/20 text-3xl font-black"><img src="images/logo-white-sq.png" alt=""></div>
+                    <h1 class="text-3xl font-black text-slate-900 leading-none">login</h1>
+                    <p class="text-slate-400 mt-3 text-sm font-medium ">Brandy Foods HRMS</p>
                 </div>
                 <input type="email" id="email" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl outline-none focus:border-brand transition-all text-center" placeholder="البريد الإلكتروني">
                 <input type="password" id="pass" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl outline-none focus:border-brand transition-all text-center" placeholder="كلمة المرور">
                 <button onclick="login()" class="w-full bg-brand hover:bg-royal text-white py-4 rounded-2xl font-bold shadow-lg transition-all active:scale-95">دخول النظام</button>
-                <button onclick="toggleAuth(true)" class="w-full text-brand font-bold text-sm mt-4 text-center">إنشاء حساب جديد</button>
+                <button onclick="toggleAuth(true)" class="w-full text-brand font-bold text-sm mt-4 text-center">New Account</button>
             </div>
 
             <div id="signupForm" class="hidden space-y-4">
-                <h2 class="text-2xl font-bold text-slate-900 text-center mb-6">انضم لفريق العمل</h2>
+                <h2 class="text-2xl font-bold text-slate-900 text-center mb-6">New Account</h2>
                 <input type="text" id="regName" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center" placeholder="الاسم الرباعي">
                 <select id="regBranch" class="w-full bg-slate-50 border border-slate-200 p-4 rounded-2xl text-center outline-none text-slate-600">
                     <option value="" disabled selected>اختر الفرع / القسم</option>
@@ -94,15 +95,14 @@
 
         <div id="salarySidebar" class="fixed inset-y-0 right-0 z-[100] w-80 bg-white shadow-2xl transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col">
             <div class="p-6 bg-slate-900 text-white flex justify-between items-center rounded-bl-[2rem]">
-                <h2 class="text-xl font-bold">الملف المالي والتقييم</h2>
+                <h2 class="text-xl font-bold">الملف المالي</h2>
                 <button onclick="toggleSidebar(false)" class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center hover:bg-red-500 transition-colors">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="p-6 flex-1 overflow-y-auto space-y-8">
-                
                 <div class="text-center">
-                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">تقييم الأداء الشهري</h3>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">التقييم الشهري</h3>
                     <div class="relative w-32 h-32 mx-auto flex items-center justify-center">
                         <svg class="w-full h-full transform -rotate-90">
                             <circle cx="64" cy="64" r="60" stroke="#f1f5f9" stroke-width="8" fill="transparent"/>
@@ -115,32 +115,27 @@
                     </div>
                 </div>
 
-                <div class="text-center">
-                    <p class="text-sm text-slate-400 font-bold mb-1">صافي الراتب المستحق</p>
-                    <h1 class="text-4xl font-black text-brand" id="sidebarNetSalary">0 <small class="text-sm text-slate-500">ج.م</small></h1>
-                </div>
-
                 <div class="bg-slate-50 rounded-2xl p-4 space-y-3 border border-slate-100">
                     <div class="flex justify-between items-center pb-2 border-b border-slate-200/50">
                         <span class="text-sm font-bold text-slate-600">الراتب الأساسي</span>
                         <span class="font-bold text-slate-800" id="sidebarBase">0</span>
                     </div>
                     <div class="flex justify-between items-center text-green-600">
-                        <span class="text-sm font-bold"><i class="fas fa-plus-circle text-xs ml-1"></i> مكافآت / حوافز</span>
+                        <span class="text-sm font-bold"><i class="fas fa-plus-circle text-xs ml-1"></i> مكافآت</span>
                         <span class="font-bold" id="sidebarBonuses">+0</span>
                     </div>
                     <div class="flex justify-between items-center text-red-500">
-                        <span class="text-sm font-bold"><i class="fas fa-minus-circle text-xs ml-1"></i> خصومات / جزاءات</span>
+                        <span class="text-sm font-bold"><i class="fas fa-minus-circle text-xs ml-1"></i> خصومات</span>
                         <span class="font-bold" id="sidebarDeductions">-0</span>
                     </div>
                     <div class="flex justify-between items-center text-orange-500">
-                        <span class="text-sm font-bold"><i class="fas fa-minus-circle text-xs ml-1"></i> سلف تم صرفها</span>
+                        <span class="text-sm font-bold"><i class="fas fa-minus-circle text-xs ml-1"></i> سلف</span>
                         <span class="font-bold" id="sidebarLoans">-0</span>
                     </div>
-                </div>
-
-                <div class="bg-blue-50 p-4 rounded-xl text-[10px] text-blue-700 leading-relaxed text-center font-bold">
-                    التقييم والمكافآت يتم تحديثها من قبل إدارة التشغيل وتؤثر مباشرة في صافي الراتب.
+                    <div class="pt-3 border-t border-slate-200 flex justify-between items-center">
+                        <span class="text-sm font-black text-slate-900">الصافي</span>
+                        <span class="text-xl font-black text-brand" id="sidebarNetSalary">0</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -148,16 +143,12 @@
         <div id="sidebarOverlay" onclick="toggleSidebar(false)" class="fixed inset-0 z-[90] bg-slate-900/50 backdrop-blur-sm hidden transition-opacity"></div>
 
         <main class="max-w-4xl mx-auto px-6 pt-24 space-y-8">
-            
             <div id="homeTab" class="tab-content active space-y-6">
                 <div onclick="toggleSidebar(true)" class="bg-gradient-to-br from-royal to-brand p-10 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group cursor-pointer hover:scale-[1.02] transition-transform">
                     <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"></div>
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <p class="opacity-70 text-sm font-medium">صافي الراتب المتوقع</p>
-                            <h1 class="text-5xl font-black mt-2 mb-4 tracking-tighter"><span id="userSalary">0</span> <small class="text-lg font-normal opacity-50">EGP</small></h1>
-                        </div>
-                        <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center animate-pulse"><i class="fas fa-chevron-left"></i></div>
+                    <div>
+                        <p class="opacity-70 text-sm font-medium">صافي الراتب المتوقع</p>
+                        <h1 class="text-5xl font-black mt-2 mb-4 tracking-tighter"><span id="userSalary">0</span> <small class="text-lg font-normal opacity-50">EGP</small></h1>
                     </div>
                     <div class="flex gap-4">
                         <span class="bg-white/10 px-3 py-1 rounded-full text-[10px] font-bold">الحالة: نشط</span>
@@ -167,42 +158,64 @@
 
                 <div class="grid grid-cols-3 md:grid-cols-5 gap-3">
                     <button onclick="sendRequest('سلفة')" class="bg-white p-4 rounded-[2rem] text-center border border-slate-100 shadow-sm hover:border-brand transition-all group">
-                        <div class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-money-bill-transfer"></i></div>
-                        <span class="font-bold text-slate-700 text-[10px] md:text-xs">سلفة</span>
+                        <div class="w-10 h-10 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-money-bill-transfer"></i></div><span class="font-bold text-slate-700 text-[10px]">سلفة</span>
                     </button>
                     <button onclick="sendRequest('إجازة')" class="bg-white p-4 rounded-[2rem] text-center border border-slate-100 shadow-sm hover:border-brand transition-all group">
-                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-calendar-check"></i></div>
-                        <span class="font-bold text-slate-700 text-[10px] md:text-xs">إجازة</span>
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-calendar-check"></i></div><span class="font-bold text-slate-700 text-[10px]">إجازة</span>
                     </button>
                     <button onclick="sendRequest('إذن')" class="bg-white p-4 rounded-[2rem] text-center border border-slate-100 shadow-sm hover:border-brand transition-all group">
-                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-clock"></i></div>
-                        <span class="font-bold text-slate-700 text-[10px] md:text-xs">إذن</span>
+                        <div class="w-10 h-10 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-clock"></i></div><span class="font-bold text-slate-700 text-[10px]">إذن</span>
                     </button>
                     <button onclick="sendRequest('استقالة')" class="bg-white p-4 rounded-[2rem] text-center border border-slate-100 shadow-sm hover:border-red-500 transition-all group">
-                        <div class="w-10 h-10 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-user-slash"></i></div>
-                        <span class="font-bold text-slate-700 text-[10px] md:text-xs">استقالة</span>
+                        <div class="w-10 h-10 bg-slate-100 text-slate-600 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-user-slash"></i></div><span class="font-bold text-slate-700 text-[10px]">استقالة</span>
                     </button>
                     <button onclick="sendRequest('شكوى')" class="bg-white p-4 rounded-[2rem] text-center border border-slate-100 shadow-sm hover:border-red-500 transition-all group">
-                        <div class="w-10 h-10 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-bullhorn"></i></div>
-                        <span class="font-bold text-slate-700 text-[10px] md:text-xs">شكوى</span>
+                        <div class="w-10 h-10 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform"><i class="fas fa-bullhorn"></i></div><span class="font-bold text-slate-700 text-[10px]">شكوى</span>
                     </button>
                 </div>
-
                 <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100">
-                    <h3 class="font-black text-slate-800 mb-5 flex items-center gap-2">
-                        <i class="fas fa-history text-brand"></i> سجل طلباتي الأخير
-                    </h3>
+                    <h3 class="font-black text-slate-800 mb-5 flex items-center gap-2"><i class="fas fa-history text-brand"></i> سجل طلباتي الأخير</h3>
                     <div id="myRequests" class="space-y-4"></div>
                 </div>
             </div>
 
             <div id="adminTab" class="tab-content space-y-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 text-center">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">الموظفين</p>
+                        <h3 id="statCount" class="text-2xl font-black text-slate-800">0</h3>
+                    </div>
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 text-center">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">الرواتب</p>
+                        <h3 id="statSalaries" class="text-2xl font-black text-brand">0</h3>
+                    </div>
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 text-center">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">إجمالي السلف</p>
+                        <h3 id="statLoans" class="text-2xl font-black text-orange-500">0</h3>
+                    </div>
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 text-center">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">إجمالي المكافآت</p>
+                        <h3 id="statBonuses" class="text-2xl font-black text-green-500">0</h3>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-[2.5rem] border border-slate-100 mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-black text-slate-800">تحليل المصروفات</h3>
+                        <button id="resetMonthBtn" onclick="resetMonthlyData()" class="hidden bg-red-50 text-red-500 px-4 py-2 rounded-xl text-xs font-bold hover:bg-red-500 hover:text-white transition-all">
+                            <i class="fas fa-sync-alt ml-1"></i> تصفير الشهر
+                        </button>
+                    </div>
+                    <div class="h-64 relative">
+                        <canvas id="financeChart"></canvas>
+                    </div>
+                </div>
+
                 <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
                     <div>
                         <h2 class="text-3xl font-black text-slate-900">إدارة الفريق</h2>
                         <span id="pendingBadge" class="bg-red-500 text-white text-[10px] px-3 py-1 rounded-full font-bold animate-pulse hidden italic">طلبات معلقة</span>
                     </div>
-                    
                     <div class="w-full md:w-auto">
                         <select id="adminBranchFilter" onchange="filterAdminList()" class="w-full bg-white border border-slate-200 px-4 py-2 rounded-xl text-sm font-bold text-slate-600 outline-none focus:border-brand">
                             <option value="all">عرض الجميع</option>
