@@ -1,23 +1,100 @@
-body { background-color: #f8fafc; font-family: 'Tajawal', sans-serif; }
-.tab-content { display: none; }
-.tab-content.active { display: block; animation: fadeInUp 0.4s ease-out; }
-@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-.nav-btn.active { color: #2563eb; background: rgba(37, 99, 235, 0.05); }
-.glass-header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #e2e8f0; }
-input::placeholder, select { text-align: center; }
-
-#modalContent::-webkit-scrollbar, #salarySidebar .overflow-y-auto::-webkit-scrollbar { width: 6px; }
-#modalContent::-webkit-scrollbar-track, #salarySidebar .overflow-y-auto::-webkit-scrollbar-track { background: #f1f1f1; }
-#modalContent::-webkit-scrollbar-thumb, #salarySidebar .overflow-y-auto::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-
-.admin-note {
-    background: #f1f5f9;
-    padding: 8px;
-    border-radius: 8px;
-    font-size: 11px;
-    color: #475569;
-    margin-top: 5px;
-    border-right: 3px solid #64748b;
+:root {
+    --bg-color: #e0e7ff; /* لون خلفية أزرق فاتح جداً */
+    --border-width: 3px;
+    --border-color: #000000;
+    --shadow-offset: 6px;
+    --card-radius: 12px;
 }
 
-.translate-x-full { transform: translateX(100%); }
+body { 
+    background-color: var(--bg-color); 
+    font-family: 'Tajawal', sans-serif; 
+    /* خلفية منقطة ديكورية */
+    background-image: radial-gradient(#cbd5e1 2px, transparent 2px);
+    background-size: 24px 24px;
+}
+
+/* كلاسات الـ Neubrutalism الخاصة */
+.neo-box {
+    background: white;
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--border-color);
+    border-radius: var(--card-radius);
+    transition: all 0.2s ease-in-out;
+}
+
+.neo-box:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: calc(var(--shadow-offset) + 2px) calc(var(--shadow-offset) + 2px) 0px var(--border-color);
+}
+
+.neo-btn {
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: 4px 4px 0px var(--border-color);
+    border-radius: 10px;
+    transition: all 0.1s;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.neo-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px var(--border-color);
+}
+
+/* تنسيق Inputs */
+input, select, textarea {
+    border: var(--border-width) solid var(--border-color) !important;
+    border-radius: 10px !important;
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.1) !important;
+    background-color: #fff !important;
+    font-weight: bold;
+    color: #000;
+}
+input:focus, select:focus, textarea:focus {
+    box-shadow: 4px 4px 0px var(--border-color) !important;
+    transform: translate(-2px, -2px);
+    outline: none;
+}
+
+/* السايد بار */
+#salarySidebar {
+    border-left: var(--border-width) solid var(--border-color);
+}
+
+/* التبويبات */
+.tab-content { display: none; }
+.tab-content.active { display: block; animation: slideUp 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+
+@keyframes slideUp { 
+    from { opacity: 0; transform: translateY(30px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* الناف بار السفلية */
+nav {
+    border: var(--border-width) solid var(--border-color) !important;
+    box-shadow: 0px -5px 0px var(--border-color) inset !important;
+}
+
+.nav-btn.active {
+    background-color: #000;
+    color: #fff !important;
+    transform: rotate(-5deg);
+    border: 2px solid #000;
+}
+
+/* الطباعة */
+@media print {
+    .print\:block { display: block !important; }
+    .print\:hidden { display: none !important; }
+    body { background: white; background-image: none; }
+    .neo-box { box-shadow: none; border: 1px solid #000; }
+}
+
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #fff; border-left: 3px solid #000; }
+::-webkit-scrollbar-thumb { background: #000; border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: #333; }
